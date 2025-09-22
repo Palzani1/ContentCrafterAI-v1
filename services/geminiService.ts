@@ -98,7 +98,14 @@ export const generateContentPackage = async (
 
   } catch (error) {
     console.error("Error calling Gemini API:", error);
-    throw new Error("Failed to generate content. The AI model may be overloaded. Please try again later.");
+    if (error instanceof Error) {
+        // Check for specific API key error messages from Google's SDK
+        if (error.message.includes('API key not valid') || error.message.includes('API key is invalid')) {
+            throw new Error("The provided API key is invalid or has expired. Please check the key and try again.");
+        }
+    }
+    // Generic error for other issues
+    throw new Error("Failed to generate content. The AI model may be overloaded or an unexpected error occurred. Please try again later.");
   }
 };
 

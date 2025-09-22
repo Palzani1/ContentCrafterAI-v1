@@ -10,6 +10,7 @@ import { useTheme } from './hooks/useTheme';
 import { generateContentPackage } from './services/geminiService';
 import type { ContentPackage, ContentType } from './types';
 import { TOTAL_FREE_GENERATIONS } from './constants';
+import { ErrorAlert } from './components/ErrorAlert';
 
 const App: React.FC = () => {
   const {
@@ -102,7 +103,7 @@ const App: React.FC = () => {
             isApiKeyMissing={isApiKeyMissing}
           />
 
-          {error && <div className="mt-6 p-4 bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700 rounded-lg text-center">{error}</div>}
+          {error && <ErrorAlert message={error} onDismiss={() => setError(null)} />}
 
           {isLoading && <LoadingSpinner />}
           
