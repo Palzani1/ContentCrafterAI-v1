@@ -11,6 +11,9 @@ interface InputFormProps {
   onGenerate: () => void;
   isLoading: boolean;
   isDisabled: boolean;
+  tempApiKey: string;
+  setTempApiKey: (key: string) => void;
+  isApiKeyMissing: boolean;
 }
 
 export const InputForm: React.FC<InputFormProps> = ({
@@ -21,11 +24,14 @@ export const InputForm: React.FC<InputFormProps> = ({
   onGenerate,
   isLoading,
   isDisabled,
+  tempApiKey,
+  setTempApiKey,
+  isApiKeyMissing,
 }) => {
-  const [errors, setErrors] = useState<{ topic?: string; contentType?: string }>({});
+  const [errors, setErrors] = useState<{ topic?: string; contentType?: string, apiKey?: string }>({});
 
   const validate = (): boolean => {
-    const newErrors: { topic?: string; contentType?: string } = {};
+    const newErrors: { topic?: string; contentType?: string, apiKey?: string } = {};
 
     if (!topic.trim()) {
       newErrors.topic = "Please enter a topic to generate content.";
@@ -34,19 +40,27 @@ export const InputForm: React.FC<InputFormProps> = ({
     if (!contentType) {
       newErrors.contentType = "Please select a content type.";
     }
+    
+    if (isApiKeyMissing && !tempApiKey.trim()) {
+      newErrors.apiKey = "Please provide your Gemini API key to proceed.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleGenerate = () => {
+    if (isDisabled) {
+        onGenerate();
+        return;
+    }
     if (validate()) {
       onGenerate();
     }
   };
 
   return (
-    <section className="p-6 bg-sky-100 dark:bg-dark-surface rounded-xl border border-sky-200 dark:border-dark-border shadow-md transition-colors duration-300">
+    <section className="p-6 bg-blue-200 dark:bg-dark-surface rounded-xl border border-blue-300 dark:border-dark-border shadow-md transition-colors duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="topic" className="block text-sm font-medium text-slate-600 dark:text-dark-text-secondary mb-2">Topic</label>
@@ -92,13 +106,38 @@ export const InputForm: React.FC<InputFormProps> = ({
           {errors.contentType && <p id="content-type-error" className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.contentType}</p>}
         </div>
       </div>
+      
+      {isApiKeyMissing && (
+        <div className="mt-6">
+          <label htmlFor="api-key" className="block text-sm font-medium text-slate-600 dark:text-dark-text-secondary mb-2">Gemini API Key</label>
+          <input
+            type="password"
+            id="api-key"
+            value={tempApiKey}
+            onChange={(e) => {
+              setTempApiKey(e.target.value);
+              if (errors.apiKey) {
+                setErrors(prev => ({ ...prev, apiKey: undefined }));
+              }
+            }}
+            placeholder="Enter your API key for this session"
+            className={`w-full bg-white dark:bg-dark-bg border rounded-lg p-3 focus:ring-2 focus:ring-brand-purple focus:border-brand-purple transition ${errors.apiKey ? 'border-red-500' : 'border-slate-300 dark:border-dark-border'}`}
+            aria-describedby={errors.apiKey ? 'api-key-error' : undefined}
+          />
+          <p className="text-xs text-slate-500 dark:text-dark-text-secondary mt-1">
+            This is only required because the API key is not set in the environment. It will not be stored.
+          </p>
+          {errors.apiKey && <p id="api-key-error" className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.apiKey}</p>}
+        </div>
+      )}
+
       <div className="mt-6 relative">
           <label htmlFor="visual-preference" className="block text-sm font-medium text-slate-600 dark:text-dark-text-secondary mb-2">Visual & B-Roll Preference</label>
           <div className="relative">
             <select
                 id="visual-preference"
                 disabled
-                className="w-full bg-sky-50 dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-lg p-3 appearance-none cursor-not-allowed opacity-50"
+                className="w-full bg-blue-100 dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-lg p-3 appearance-none cursor-not-allowed opacity-50"
             >
                 <option>Royalty-Free Stock Media Links</option>
             </select>
@@ -113,7 +152,7 @@ export const InputForm: React.FC<InputFormProps> = ({
       <div className="mt-8 flex justify-center">
         <button
           onClick={handleGenerate}
-          disabled={isLoading || isDisabled}
+          disabled={isLoading}
           className="w-full md:w-1/2 text-white font-bold py-3 px-6 rounded-lg bg-gradient-to-r from-brand-purple to-brand-pink hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-300 transform hover:scale-105"
         >
           {isLoading ? 'Generating...' : 'Create My Content Package!'}

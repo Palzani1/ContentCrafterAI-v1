@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { ContentPackage, ContentType } from '../types';
 
@@ -6,16 +5,16 @@ import type { ContentPackage, ContentType } from '../types';
 // In a real application, this logic would be on a secure server.
 export const generateContentPackage = async (
   topic: string,
-  contentType: ContentType
+  contentType: ContentType,
+  apiKey?: string
 ): Promise<ContentPackage> => {
-  // IMPORTANT: API key should never be exposed in the frontend.
-  // This is a placeholder and assumes the key is available in the environment.
-  if (!process.env.API_KEY) {
-      // For demonstration, returning mock data if no key is found.
-      console.warn("API_KEY environment variable not set. Returning mock data.");
+  const effectiveApiKey = apiKey || process.env.API_KEY;
+
+  if (!effectiveApiKey) {
+      console.warn("API key not provided. Returning mock data.");
       return getMockData();
   }
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: effectiveApiKey });
 
   const prompt = `
     You are a creative assistant for content creators.

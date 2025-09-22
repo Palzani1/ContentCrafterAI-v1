@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { InputForm } from './components/InputForm';
 import { LoadingSpinner } from './components/LoadingSpinner';
@@ -31,12 +30,22 @@ const App: React.FC = () => {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
 
+  const [tempApiKey, setTempApiKey] = useState('');
+  const [isApiKeyMissing, setIsApiKeyMissing] = useState(false);
+
+  useEffect(() => {
+    if (!process.env.API_KEY) {
+      setIsApiKeyMissing(true);
+    }
+  }, []);
+
   const handleGenerate = useCallback(async () => {
-    if (!topic || !contentType || isLimitReached()) {
-      if(isLimitReached()) {
+    if (isLimitReached()) {
         if(userTier === 'anonymous') setShowEmailModal(true);
-        if(userTier === 'email') setShowPaywallModal(true);
-      }
+        if(userTier === 'email' || userTier === 'limit-reached') setShowPaywallModal(true);
+        return;
+    }
+    if (!topic || !contentType || (isApiKeyMissing && !tempApiKey)) {
       return;
     }
 
@@ -45,7 +54,7 @@ const App: React.FC = () => {
     setContentPackage(null);
 
     try {
-      const result = await generateContentPackage(topic, contentType);
+      const result = await generateContentPackage(topic, contentType, tempApiKey);
       setContentPackage(result);
       incrementGenerations();
       if (generationsUsed + 1 === TOTAL_FREE_GENERATIONS) {
@@ -59,7 +68,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, contentType, isLimitReached, incrementGenerations, userTier, generationsUsed]);
+  }, [topic, contentType, isLimitReached, incrementGenerations, userTier, generationsUsed, startEmailTier, tempApiKey, isApiKeyMissing]);
   
   const handleEmailSubmit = (email: string) => {
     // In a real app, you'd call a backend here.
@@ -73,14 +82,13 @@ const App: React.FC = () => {
   const generationsLeft = TOTAL_FREE_GENERATIONS - generationsUsed;
 
   return (
-    <div className="min-h-screen bg-sky-50 dark:bg-dark-bg text-slate-900 dark:text-dark-text font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
-      <div className="w-full max-w-4xl">
+    <div className="w-full max-w-4xl">
         <Header 
             generationsLeft={generationsLeft} 
             theme={theme}
             toggleTheme={toggleTheme}
         />
-        <main className="mt-8">
+        <div className="mt-8">
           <InputForm
             topic={topic}
             setTopic={setTopic}
@@ -89,6 +97,9 @@ const App: React.FC = () => {
             onGenerate={handleGenerate}
             isLoading={isLoading}
             isDisabled={isLimitReached()}
+            tempApiKey={tempApiKey}
+            setTempApiKey={setTempApiKey}
+            isApiKeyMissing={isApiKeyMissing}
           />
 
           {error && <div className="mt-6 p-4 bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700 rounded-lg text-center">{error}</div>}
@@ -99,14 +110,7 @@ const App: React.FC = () => {
             <ResultsDisplay contentPackage={contentPackage} />
           )}
 
-          {!isLoading && !contentPackage && (
-             <div className="mt-12 text-center text-slate-500 dark:text-dark-text-secondary">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-dark-text mb-2">Welcome to ContentCrafter AI</h2>
-                <p>Enter a topic and select a content type to begin your creation journey.</p>
-            </div>
-          )}
-        </main>
-      </div>
+        </div>
 
       {showEmailModal && <EmailModal onSubmit={handleEmailSubmit} onClose={() => setShowEmailModal(false)} />}
       {showPaywallModal && <PaywallModal onClose={() => setShowPaywallModal(false)} />}

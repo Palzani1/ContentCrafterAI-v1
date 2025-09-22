@@ -149,7 +149,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ contentPackage }
 
 
   return (
-    <section className="mt-8 p-6 bg-sky-100 dark:bg-dark-surface rounded-xl border border-sky-200 dark:border-dark-border shadow-md animate-fade-in transition-colors duration-300">
+    <section className="mt-8 p-6 bg-blue-200 dark:bg-dark-surface rounded-xl border border-blue-300 dark:border-dark-border shadow-md animate-fade-in transition-colors duration-300">
       <div className="flex flex-wrap justify-end items-center gap-4 mb-6">
         <button onClick={handleCopyScript} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-lg hover:bg-slate-100 dark:hover:bg-dark-border transition">
             <CopyIcon /> Copy Script
@@ -179,7 +179,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ contentPackage }
         <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-pink">Full Script/Outline</h2>
         <div className="space-y-6">
           {contentPackage.script.map((segment, index) => (
-            <div key={index} className="p-4 bg-white dark:bg-dark-bg rounded-lg border border-sky-200 dark:border-dark-border transition-colors duration-300">
+            <div key={index} className="p-4 bg-white dark:bg-dark-bg rounded-lg border border-blue-200 dark:border-dark-border transition-colors duration-300">
               <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">{segment.segmentTitle}</h3>
               <p className="text-slate-700 dark:text-dark-text-secondary mb-4 whitespace-pre-wrap">{segment.talkingPoints.join('\n\n')}</p>
               

@@ -18,7 +18,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onSubmit, onClose }) => 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-sky-100 dark:bg-dark-surface p-8 rounded-xl border border-sky-200 dark:border-dark-border shadow-2xl max-w-md w-full text-center transition-colors duration-300">
+      <div className="bg-blue-200 dark:bg-dark-surface p-8 rounded-xl border border-blue-300 dark:border-dark-border shadow-2xl max-w-md w-full text-center transition-colors duration-300">
         <h2 className="text-2xl font-bold mb-2">Unlock More Content!</h2>
         <p className="text-slate-600 dark:text-dark-text-secondary mb-6">You've reached your anonymous free generation limit. Enter your email to unlock 3 more content packages, completely free.</p>
         <form onSubmit={handleSubmit}>
